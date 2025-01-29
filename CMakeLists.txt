@@ -30,6 +30,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 target_link_libraries(${CMAKE_PROJECT_NAME}
     PRIVATE
         juce::juce_gui_extra
+        juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

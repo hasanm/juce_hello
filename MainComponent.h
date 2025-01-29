@@ -1,29 +1,82 @@
 #pragma once
 
-// CMake builds don't use an AppConfig.h, so it's safe to include juce module headers
-// directly. If you need to remain compatible with Projucer-generated builds, and
-// have called `juce_generate_juce_header(<thisTarget>)` in your CMakeLists.txt,
-// you could `#include <JuceHeader.h>` here instead, to make all your module headers visible.
-#include <juce_gui_extra/juce_gui_extra.h>
+#include <JuceHeader.h>
 
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent final : public juce::Component
+class MainComponent final : public juce::Component,
+                            public juce::ChangeListener
 {
 public:
-    //==============================================================================
-    MainComponent();
+  //==============================================================================
+  MainComponent();
+  ~MainComponent();
 
-    //==============================================================================
+  //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
-private:
-    //==============================================================================
-    // Your private member variables go here...
+    void dumpDeviceInfo()
+    {
+        logMessage ("--------------------------------------");
+        logMessage ("Current audio device type: " + (audioDeviceManager.getCurrentDeviceTypeObject() != nullptr
+                                                     ? audioDeviceManager.getCurrentDeviceTypeObject()->getTypeName()
+                                                     : "<none>"));
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+        if (AudioIODevice* device = audioDeviceManager.getCurrentAudioDevice())
+        {
+            logMessage ("Current audio device: "   + device->getName().quoted());
+            logMessage ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
+            logMessage ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
+            logMessage ("Output Latency: " + String (device->getOutputLatencyInSamples())   + " samples");
+            logMessage ("Input Latency: "  + String (device->getInputLatencyInSamples())    + " samples");
+            logMessage ("Bit depth: "      + String (device->getCurrentBitDepth()));
+            logMessage ("Input channel names: "    + device->getInputChannelNames().joinIntoString (", "));
+            logMessage ("Active input channels: "  + getListOfActiveBits (device->getActiveInputChannels()));
+            logMessage ("Output channel names: "   + device->getOutputChannelNames().joinIntoString (", "));
+            logMessage ("Active output channels: " + getListOfActiveBits (device->getActiveOutputChannels()));
+        }
+        else
+        {
+            logMessage ("No audio device open");
+        }
+    }
+
+    void logMessage (const String& m)
+    {
+        diagnosticsBox.moveCaretToEnd();
+        diagnosticsBox.insertTextAtCaret (m + newLine);
+    }  
+
+private:
+  TextButton startButton { TRANS ("Start") };
+  TextButton stopButton { TRANS ("Stop") };
+  TextButton quitButton { TRANS ("Quit") };
+  TextEditor diagnosticsBox;  
+  Label helloWorldLabel { {}, TRANS ("Hello World!") };
+  Path internalPath;
+  std::unique_ptr<AudioDeviceSelectorComponent> audioSetupComp;  
+  AudioDeviceManager audioDeviceManager;
+
+
+  void changeListenerCallback (ChangeBroadcaster*) override
+  {
+    dumpDeviceInfo();
+  }  
+
+  static String getListOfActiveBits (const BigInteger& b)
+  {
+    StringArray bits;
+    
+    for (int i = 0; i <= b.getHighestBit(); ++i)
+      if (b[i])
+        bits.add (String (i));
+    
+    return bits.joinIntoString (", ");
+  }
+  
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
