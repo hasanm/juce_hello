@@ -1,1 +1,1 @@
-"# juce_hello" 
+juce_hello
