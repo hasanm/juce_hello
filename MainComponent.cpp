@@ -9,7 +9,8 @@ MainComponent::MainComponent()
   
   addAndMakeVisible (helloWorldLabel);
 
-  helloWorldLabel.setFont (FontOptions (40.00f, Font::bold));
+  // helloWorldLabel.setFont (FontOptions (40.00f, Font::bold));
+  helloWorldLabel.setFont (Font (40.00f, Font::bold));
   helloWorldLabel.setJustificationType (Justification::centred);
   helloWorldLabel.setEditable (false, false, false);
   helloWorldLabel.setColour (Label::textColourId, Colours::black);
@@ -23,13 +24,22 @@ MainComponent::MainComponent()
   diagnosticsBox.setReadOnly (true);
   diagnosticsBox.setScrollbarsShown (true);
   diagnosticsBox.setCaretVisible (false);
-  diagnosticsBox.setPopupMenuEnabled (true);  
+  diagnosticsBox.setPopupMenuEnabled (true);
+
+  diagnosticsBox.moveCaretToEnd();
+  diagnosticsBox.insertTextAtCaret ("HELLO WORLD");
 
   addAndMakeVisible (startButton);
   addAndMakeVisible (stopButton);
   addAndMakeVisible (quitButton);
 
-  quitButton.onClick = [] { JUCEApplication::quit(); };  
+  startButton.addListener(this);
+  stopButton.addListener(this);
+  quitButton.onClick = [] { JUCEApplication::quit(); };
+
+  audioDeviceManager.addChangeListener(this);
+
+  addAndMakeVisible(recordingThumbnail);
   setSize (600, 400);
 }
 
@@ -44,7 +54,8 @@ void MainComponent::paint (juce::Graphics& g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
-    g.setFont (juce::FontOptions (16.0f));
+    // g.setFont (juce::FontOptions (16.0f));
+    g.setFont (Font (16.0f, Font::bold));
     g.setColour (juce::Colours::white);
     // g.drawText ("Hello World!", getLocalBounds(), juce::Justification::centred, true);
 }
@@ -57,6 +68,7 @@ void MainComponent::resized()
   stopButton.setBounds (getWidth() - 376, getHeight() - 60, 120, 32);  
   quitButton.setBounds (getWidth() - 176, getHeight() - 60, 120, 32);
 
+  recordingThumbnail.setBounds(getWidth() - 776, getHeight() - 60, 120, 32);
 
   auto r =  getLocalBounds().reduced (4);
   audioSetupComp->setBounds (r.removeFromTop (proportionOfHeight (0.65f)));  

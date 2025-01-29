@@ -1,5 +1,6 @@
 #pragma once
 
+#include "recordingthumbnail.h"
 #include <JuceHeader.h>
 
 //==============================================================================
@@ -8,7 +9,8 @@
     your controls and content.
 */
 class MainComponent final : public juce::Component,
-                            public juce::ChangeListener
+                            public juce::ChangeListener,
+                            public juce::Button::Listener
 {
 public:
   //==============================================================================
@@ -49,7 +51,16 @@ public:
     {
         diagnosticsBox.moveCaretToEnd();
         diagnosticsBox.insertTextAtCaret (m + newLine);
-    }  
+    }
+
+  void buttonClicked (juce::Button* button) override
+  {
+    if (button == &startButton) {
+      logMessage("Start");
+    } else if (button == &stopButton) {
+      logMessage("Stop");
+    } 
+  }
 
 private:
   TextButton startButton { TRANS ("Start") };
@@ -60,6 +71,9 @@ private:
   Path internalPath;
   std::unique_ptr<AudioDeviceSelectorComponent> audioSetupComp;  
   AudioDeviceManager audioDeviceManager;
+  TimeSliceThread backgroundThread { "Audio Recorder Thread" }; // the thread that will write our audio data to disk
+  RecordingThumbnail recordingThumbnail;  
+  // AudioThumbnail& thumbnail;  
 
 
   void changeListenerCallback (ChangeBroadcaster*) override
