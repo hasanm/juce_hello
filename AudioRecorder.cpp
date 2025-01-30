@@ -32,6 +32,7 @@ void AudioRecorder::startRecording (const File& file)
           WavAudioFormat wavFormat;
           
           if (auto writer = wavFormat.createWriterFor (fileStream.get(), sampleRate, 1, 16, {}, 0))
+          // if (auto writer = wavFormat.createWriterFor (fileStream.get(), 16000, 1, 16, {}, 0))            
             {
               fileStream.release(); // (passes responsibility for deleting the stream to the writer object that is now using it)
               
