@@ -1,7 +1,9 @@
 #pragma once
+#include <JuceHeader.h>
 
 #include "recordingthumbnail.h"
-#include <JuceHeader.h>
+#include "AudioRecorder.h"
+
 
 //==============================================================================
 /*
@@ -16,52 +18,27 @@ public:
   //==============================================================================
   MainComponent();
   ~MainComponent();
-
+  
   //==============================================================================
-    void paint (juce::Graphics&) override;
-    void resized() override;
-
-    void dumpDeviceInfo()
-    {
-        logMessage ("--------------------------------------");
-        logMessage ("Current audio device type: " + (audioDeviceManager.getCurrentDeviceTypeObject() != nullptr
-                                                     ? audioDeviceManager.getCurrentDeviceTypeObject()->getTypeName()
-                                                     : "<none>"));
-
-        if (AudioIODevice* device = audioDeviceManager.getCurrentAudioDevice())
-        {
-            logMessage ("Current audio device: "   + device->getName().quoted());
-            logMessage ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
-            logMessage ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
-            logMessage ("Output Latency: " + String (device->getOutputLatencyInSamples())   + " samples");
-            logMessage ("Input Latency: "  + String (device->getInputLatencyInSamples())    + " samples");
-            logMessage ("Bit depth: "      + String (device->getCurrentBitDepth()));
-            logMessage ("Input channel names: "    + device->getInputChannelNames().joinIntoString (", "));
-            logMessage ("Active input channels: "  + getListOfActiveBits (device->getActiveInputChannels()));
-            logMessage ("Output channel names: "   + device->getOutputChannelNames().joinIntoString (", "));
-            logMessage ("Active output channels: " + getListOfActiveBits (device->getActiveOutputChannels()));
-        }
-        else
-        {
-            logMessage ("No audio device open");
-        }
-    }
-
-    void logMessage (const String& m)
-    {
-        diagnosticsBox.moveCaretToEnd();
-        diagnosticsBox.insertTextAtCaret (m + newLine);
-    }
-
+  void paint (juce::Graphics&) override;
+  void resized() override;
+  
+  void dumpDeviceInfo(); 
+  void logMessage (const String& m); 
   void buttonClicked (juce::Button* button) override
   {
     if (button == &startButton) {
       logMessage("Start");
+      SafePointer<MainComponent> safeThis (this);
+      auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
+      lastRecording = parentDir.getNonexistentChildFile ("JUCE Demo Audio Recording", ".wav");
+      recorder.startRecording(lastRecording);
     } else if (button == &stopButton) {
       logMessage("Stop");
+      recorder.stop();
     } 
   }
-
+  
 private:
   TextButton startButton { TRANS ("Start") };
   TextButton stopButton { TRANS ("Stop") };
@@ -72,15 +49,17 @@ private:
   std::unique_ptr<AudioDeviceSelectorComponent> audioSetupComp;  
   AudioDeviceManager audioDeviceManager;
   TimeSliceThread backgroundThread { "Audio Recorder Thread" }; // the thread that will write our audio data to disk
-  RecordingThumbnail recordingThumbnail;  
-  // AudioThumbnail& thumbnail;  
+  RecordingThumbnail recordingThumbnail;
+  File lastRecording;
+  AudioRecorder recorder  { recordingThumbnail.getAudioThumbnail() };
 
-
+  
+  
   void changeListenerCallback (ChangeBroadcaster*) override
   {
     dumpDeviceInfo();
   }  
-
+  
   static String getListOfActiveBits (const BigInteger& b)
   {
     StringArray bits;

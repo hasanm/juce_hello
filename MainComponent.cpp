@@ -74,3 +74,38 @@ void MainComponent::resized()
   audioSetupComp->setBounds (r.removeFromTop (proportionOfHeight (0.65f)));  
   diagnosticsBox.setBounds (r);  
 }
+
+
+void MainComponent::dumpDeviceInfo()
+{
+  logMessage ("--------------------------------------");
+  logMessage ("Current audio device type: " + (audioDeviceManager.getCurrentDeviceTypeObject() != nullptr
+                                               ? audioDeviceManager.getCurrentDeviceTypeObject()->getTypeName()
+                                               : "<none>"));
+  
+  if (AudioIODevice* device = audioDeviceManager.getCurrentAudioDevice())
+    {
+      logMessage ("Current audio device: "   + device->getName().quoted());
+      logMessage ("Sample rate: "    + String (device->getCurrentSampleRate()) + " Hz");
+      logMessage ("Block size: "     + String (device->getCurrentBufferSizeSamples()) + " samples");
+      logMessage ("Output Latency: " + String (device->getOutputLatencyInSamples())   + " samples");
+      logMessage ("Input Latency: "  + String (device->getInputLatencyInSamples())    + " samples");
+      logMessage ("Bit depth: "      + String (device->getCurrentBitDepth()));
+      logMessage ("Input channel names: "    + device->getInputChannelNames().joinIntoString (", "));
+      logMessage ("Active input channels: "  + getListOfActiveBits (device->getActiveInputChannels()));
+      logMessage ("Output channel names: "   + device->getOutputChannelNames().joinIntoString (", "));
+      logMessage ("Active output channels: " + getListOfActiveBits (device->getActiveOutputChannels()));
+    }
+  else
+    {
+      logMessage ("No audio device open");
+    }
+}
+
+
+
+void MainComponent::logMessage (const String& m)
+{
+  diagnosticsBox.moveCaretToEnd();
+  diagnosticsBox.insertTextAtCaret (m + newLine);
+}

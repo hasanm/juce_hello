@@ -11,7 +11,8 @@ juce_generate_juce_header(JuceHello)
 target_sources(JuceHello
     PRIVATE
     main.cpp
-    MainComponent.cpp)
+    MainComponent.cpp
+    AudioRecorder.cpp)
 
 
 
@@ -29,7 +30,10 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
     PRIVATE
+        juce::juce_gui_basics
         juce::juce_gui_extra
+        juce::juce_audio_basics
+        juce::juce_audio_devices        
         juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags
