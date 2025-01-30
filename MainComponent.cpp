@@ -4,7 +4,7 @@
 MainComponent::MainComponent()
 {
   audioSetupComp.reset (new AudioDeviceSelectorComponent (audioDeviceManager,
-                                                          0, 256, 0, 256, true, true, true, false));
+                                                          0, 256, 0, 0, false, false, true, false));
   addAndMakeVisible (audioSetupComp.get());  
   
   addAndMakeVisible (helloWorldLabel);
@@ -37,11 +37,13 @@ MainComponent::MainComponent()
   stopButton.addListener(this);
   quitButton.onClick = [] { JUCEApplication::quit(); };
 
+  audioDeviceManager.initialise(2,0, nullptr, true, "VoiceMeeter Aux Output (VB-Audio VoiceMeeter AUX VAIO)", nullptr);
+
   audioDeviceManager.addChangeListener(this);
   audioDeviceManager.addAudioCallback(&recorder);
 
   addAndMakeVisible(recordingThumbnail);
-  setSize (600, 400);
+  setSize (1600, 900);
 }
 
 MainComponent::~MainComponent()
@@ -96,6 +98,11 @@ void MainComponent::dumpDeviceInfo()
       logMessage ("Active input channels: "  + getListOfActiveBits (device->getActiveInputChannels()));
       logMessage ("Output channel names: "   + device->getOutputChannelNames().joinIntoString (", "));
       logMessage ("Active output channels: " + getListOfActiveBits (device->getActiveOutputChannels()));
+
+      logMessage ("XML: ");
+      std::unique_ptr<XmlElement> xml =  audioDeviceManager.createStateXml();
+      
+      // logMessage(xml->toString());
     }
   else
     {
@@ -126,6 +133,7 @@ void MainComponent::buttonClicked (juce::Button* button)
     logMessage("Start");
     SafePointer<MainComponent> safeThis (this);
     auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
+    logMessage(parentDir.getFullPathName());
     lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");
     recorder.startRecording(lastRecording);
   } else if (button == &stopButton) {
