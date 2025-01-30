@@ -31,7 +31,7 @@ public:
       logMessage("Start");
       SafePointer<MainComponent> safeThis (this);
       auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
-      lastRecording = parentDir.getNonexistentChildFile ("JUCE Demo Audio Recording", ".wav");
+      lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");
       recorder.startRecording(lastRecording);
     } else if (button == &stopButton) {
       logMessage("Stop");

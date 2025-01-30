@@ -38,6 +38,7 @@ MainComponent::MainComponent()
   quitButton.onClick = [] { JUCEApplication::quit(); };
 
   audioDeviceManager.addChangeListener(this);
+  audioDeviceManager.addAudioCallback(&recorder);
 
   addAndMakeVisible(recordingThumbnail);
   setSize (600, 400);

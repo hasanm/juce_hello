@@ -13,3 +13,40 @@ void AudioRecorder::stop()
   // the audio callback while this happens.
   threadedWriter.reset();
 }
+
+
+
+//==============================================================================
+void AudioRecorder::startRecording (const File& file)
+{
+  stop();
+  
+  if (sampleRate > 0)
+    {
+      // Create an OutputStream to write to our destination file...
+      file.deleteFile();
+      
+      if (auto fileStream = std::unique_ptr<FileOutputStream> (file.createOutputStream()))
+        {
+          // Now create a WAV writer object that writes to our output stream...
+          WavAudioFormat wavFormat;
+          
+          if (auto writer = wavFormat.createWriterFor (fileStream.get(), sampleRate, 1, 16, {}, 0))
+            {
+              fileStream.release(); // (passes responsibility for deleting the stream to the writer object that is now using it)
+              
+              // Now we'll create one of these helper objects which will act as a FIFO buffer, and will
+              // write the data to disk on our background thread.
+              threadedWriter.reset (new AudioFormatWriter::ThreadedWriter (writer, backgroundThread, 32768));
+              
+              // Reset our recording thumbnail
+              thumbnail.reset (writer->getNumChannels(), writer->getSampleRate());
+              nextSampleNum = 0;
+              
+              // And now, swap over our active writer pointer so that the audio callback will start using it..
+              const ScopedLock sl (writerLock);
+              activeWriter = threadedWriter.get();
+            }
+        }
+    }
+}
