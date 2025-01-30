@@ -110,3 +110,26 @@ void MainComponent::logMessage (const String& m)
   diagnosticsBox.moveCaretToEnd();
   diagnosticsBox.insertTextAtCaret (m + newLine);
 }
+
+
+
+void MainComponent::changeListenerCallback (ChangeBroadcaster*)
+{
+  dumpDeviceInfo();
+}
+
+
+
+void MainComponent::buttonClicked (juce::Button* button)
+{
+  if (button == &startButton) {
+    logMessage("Start");
+    SafePointer<MainComponent> safeThis (this);
+    auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
+    lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");
+    recorder.startRecording(lastRecording);
+  } else if (button == &stopButton) {
+    logMessage("Stop");
+    recorder.stop();
+  } 
+}

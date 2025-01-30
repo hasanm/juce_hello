@@ -25,19 +25,8 @@ public:
   
   void dumpDeviceInfo(); 
   void logMessage (const String& m); 
-  void buttonClicked (juce::Button* button) override
-  {
-    if (button == &startButton) {
-      logMessage("Start");
-      SafePointer<MainComponent> safeThis (this);
-      auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
-      lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");
-      recorder.startRecording(lastRecording);
-    } else if (button == &stopButton) {
-      logMessage("Stop");
-      recorder.stop();
-    } 
-  }
+  void buttonClicked (juce::Button* button) override; 
+
   
 private:
   TextButton startButton { TRANS ("Start") };
@@ -55,10 +44,7 @@ private:
 
   
   
-  void changeListenerCallback (ChangeBroadcaster*) override
-  {
-    dumpDeviceInfo();
-  }  
+  void changeListenerCallback (ChangeBroadcaster*) override;
   
   static String getListOfActiveBits (const BigInteger& b)
   {
