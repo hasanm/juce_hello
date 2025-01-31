@@ -45,6 +45,8 @@ MainComponent::MainComponent()
   audioDeviceManager.addAudioCallback(&recorder);
 
   addAndMakeVisible(recordingThumbnail);
+
+  addAndMakeVisible(analyserComponent);
   setSize (1600, 900);
 }
 
@@ -73,7 +75,9 @@ void MainComponent::resized()
   stopButton.setBounds (getWidth() - 376, getHeight() - 60, 120, 32);  
   quitButton.setBounds (getWidth() - 176, getHeight() - 60, 120, 32);
 
-  recordingThumbnail.setBounds(getWidth() - 776, getHeight() - 60, 120, 32);
+  recordingThumbnail.setBounds(getWidth() - 1076, getHeight() - 60, 360, 32);
+
+  analyserComponent.setBounds(getWidth() - 1076, getHeight() - 300, 360, 32);
 
   auto r =  getLocalBounds().reduced (4);
   audioSetupComp->setBounds (r.removeFromTop (proportionOfHeight (0.65f)));  

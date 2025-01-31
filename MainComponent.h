@@ -3,6 +3,7 @@
 
 #include "recordingthumbnail.h"
 #include "AudioRecorder.h"
+#include "AnalyserComponent.h"
 
 
 //==============================================================================
@@ -41,6 +42,8 @@ private:
   RecordingThumbnail recordingThumbnail;
   File lastRecording;
   AudioRecorder recorder  { recordingThumbnail.getAudioThumbnail() };
+
+  AnalyserComponent analyserComponent; 
 
   
   
