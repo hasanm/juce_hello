@@ -82,9 +82,28 @@ void AudioRecorder::audioDeviceIOCallbackWithContext (const float* const* inputC
   
   if (activeWriter.load() != nullptr && numInputChannels >= thumbnail.getNumChannels()){
     activeWriter.load()->write (inputChannelData, numSamples);
+
+    // float *converted = new float[numSamples];    
     
-    // Create an AudioBuffer to wrap our incoming data, note that this does no allocations or copies, it simply references our input data
+    // auto converter = new AudioData::ConverterInstance <AudioData::Pointer <AudioData::Float32, AudioData::NativeEndian, AudioData::NonInterleaved, AudioData::Const>, AudioData::Pointer <AudioData::Float32, AudioData::NativeEndian, AudioData::NonInterleaved, AudioData::Const> > (1, 1);
+    // converter->convertSamples(converted, inputChannelData, numSamples);
+    // delete converter; 
+    // delete[] converted; 
+
+    // std::unique_ptr<AudioData::Converter> conv (new AudioData::ConverterInstance<AudioData::Pointer<F1, E1, AudioData::NonInterleaved, AudioData::Const>,
+    //                                             AudioData::Pointer<F2, E2, AudioData::NonInterleaved, AudioData::NonConst>>());
+    // conv->convertSamples (converted, inputChannelData, numSamples);
+
     AudioBuffer<float> buffer (const_cast<float**> (inputChannelData), thumbnail.getNumChannels(), numSamples);
+
+    // MemoryAudioSource memorySource(buffer, false);
+    // ResamplingAudioSource resamplingSource (&memorySource, false, buffer.getNumChannels());
+    // const auto resampleRatio = 2.75625;
+    // const auto finalSize = roundToInt (buffer.getNumSamples() / resampleRatio);
+    // resamplingSource.prepareToPlay (finalSize, sampleRate * resampleRatio);
+    // AudioBuffer<float> result (buffer.getNumChannels(), finalSize);
+    // resamplingSource.getNextAudioBlock ({ &result, 0, result.getNumSamples() });
+
     thumbnail.addBlock (nextSampleNum, buffer, 0, numSamples);
     nextSampleNum += numSamples;
   }

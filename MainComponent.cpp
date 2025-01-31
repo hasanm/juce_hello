@@ -104,6 +104,12 @@ void MainComponent::dumpDeviceInfo()
       // std::unique_ptr<XmlElement> xml =  audioDeviceManager.createStateXml();
       logMessage ("Sample Rates: " );
 
+      Array<double> rates = device->getAvailableSampleRates();
+
+      for (int i=0 ; i < rates.size(); i++) {
+        logMessage(std::to_string(rates[i]));
+      }
+
       // WavAudioFormat wavFormat; 
       // auto rates<int> = wavFormat.getPossibleSampleRates();
 
@@ -141,7 +147,8 @@ void MainComponent::buttonClicked (juce::Button* button)
     // auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
     auto parentDir = File::File("Z:/juce");
     logMessage(parentDir.getFullPathName());
-    lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");
+    // lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");
+    lastRecording = File::File ("Z:/juce/JUCERecording.wav");
     recorder.startRecording(lastRecording);
   } else if (button == &stopButton) {
     logMessage("Stop");
