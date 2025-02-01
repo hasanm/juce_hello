@@ -31,10 +31,12 @@ MainComponent::MainComponent()
 
   addAndMakeVisible (startButton);
   addAndMakeVisible (stopButton);
+  addAndMakeVisible (convertButton);
   addAndMakeVisible (quitButton);
 
   startButton.addListener(this);
   stopButton.addListener(this);
+  convertButton.addListener(this);
   quitButton.onClick = [] { JUCEApplication::quit(); };
 
   // audioDeviceManager.initialise(2,0, nullptr, true, "VoiceMeeter Aux Output (VB-Audio VoiceMeeter AUX VAIO)", nullptr);
@@ -70,12 +72,21 @@ void MainComponent::paint (juce::Graphics& g)
 void MainComponent::resized()
 {
 
-  helloWorldLabel.setBounds (152, 80, 296, 48);
-  startButton.setBounds (getWidth() - 576, getHeight() - 60, 120, 32);
-  stopButton.setBounds (getWidth() - 376, getHeight() - 60, 120, 32);  
-  quitButton.setBounds (getWidth() - 176, getHeight() - 60, 120, 32);
+  auto area = getLocalBounds();
 
-  recordingThumbnail.setBounds(getWidth() - 1076, getHeight() - 60, 360, 32);
+  logMessage("Resized: " + area.toString()); 
+
+  helloWorldLabel.setBounds (152, 80, 296, 48);
+
+  int startX = getWidth() - 1276;
+  recordingThumbnail.setBounds(startX, getHeight() - 60, 360, 32);  
+
+  startButton.setBounds (startX + 500, getHeight() - 60, 120, 32);
+  stopButton.setBounds (startX + 700, getHeight() - 60, 120, 32);
+  convertButton.setBounds (startX + 900, getHeight() - 60, 120, 32);    
+  quitButton.setBounds (startX + 1100, getHeight() - 60, 120, 32);
+
+
 
   analyserComponent.setBounds(getWidth() - 1076, getHeight() - 300, 360, 32);
 
@@ -145,17 +156,28 @@ void MainComponent::changeListenerCallback (ChangeBroadcaster*)
 
 void MainComponent::buttonClicked (juce::Button* button)
 {
+  auto parentDir = File::File("Z:/juce");
+  // logMessage(parentDir.getFullPathName());
+  lastRecording = File::File ("Z:/juce/JUCERecording.wav");
+  
+  // auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
+  // lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");      
+
   if (button == &startButton) {
     logMessage("Start");
-    SafePointer<MainComponent> safeThis (this);
-    // auto parentDir = File::getSpecialLocation (File::userDocumentsDirectory);
-    auto parentDir = File::File("Z:/juce");
-    logMessage(parentDir.getFullPathName());
-    // lastRecording = parentDir.getNonexistentChildFile ("JUCERecording", ".wav");
-    lastRecording = File::File ("Z:/juce/JUCERecording.wav");
+    // SafePointer<MainComponent> safeThis (this);
     recorder.startRecording(lastRecording);
+
   } else if (button == &stopButton) {
     logMessage("Stop");
     recorder.stop();
+
+  } else if (button == &convertButton) {
+    logMessage("Convert!");
+    if (!recorder.isRecording() ) {
+      logMessage("Not Recording!");
+      
+    }
+    
   } 
 }

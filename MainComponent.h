@@ -32,6 +32,7 @@ public:
 private:
   TextButton startButton { TRANS ("Start") };
   TextButton stopButton { TRANS ("Stop") };
+  TextButton convertButton { TRANS ("Convert") };
   TextButton quitButton { TRANS ("Quit") };
   TextEditor diagnosticsBox;  
   Label helloWorldLabel { {}, TRANS ("Hello World!") };
